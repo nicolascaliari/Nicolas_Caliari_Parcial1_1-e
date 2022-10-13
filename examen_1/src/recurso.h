@@ -9,6 +9,8 @@
 #define RECURSO_H_
 #define DESCRIPCION 1024
 
+#include "tipo.h"
+
 
 
 typedef struct {
@@ -19,19 +21,27 @@ typedef struct {
 	int isEmpty;
 } recurso;
 
+int recurso_bajaArray(recurso arrayRecurso[], tipo arrayTipo[], int limiteRecurso,int limiteTipo);
 
-int recurso_imprimir(recurso pElemento);
-int recurso_inicializarArray(recurso array[], int limite);
-int recurso_altaArray(recurso array[], int limite);
-int recurso_getEmptyIndex(recurso array[], int limite);
-int recurso_imprimirArray(recurso array[], int limite);
-int recurso_buscarId(recurso array[], int limite, int valorBuscado);
-int recurso_modificarArray(recurso array[], int limite);
-int recurso_bajaArray(recurso array[], int limite, int indice);
-int recurso_ordenarPorDescripcion(recurso array[], int limite);
-int OrdenaArrayInt(recurso array[], int limite);
-int recurso_ordenarPorIdDescripcion(recurso array[], int limite);
-recurso eGen_ModificarUno(recurso Gen);
-recurso eGen_CargarDatos(void);
+void recurso_inicializarArray(recurso arrayRecurso[], int limiteRecurso);
+
+int recurso_imprimir(recurso unRecurso, tipo arrayTipo[], int limiteTipo);
+
+int recurso_imprimirArray(recurso arrayRecurso[], tipo arrayTipo[], int limiteRecurso, int limiteTipo);
+
+int recurso_altaArray(recurso arrayRecurso[], int limiteRecurso, tipo arrayTipo[], int limiteTipo);
+
+int buscarEspacio(recurso arrayRecurso[], int limiteArray);
+
+int recurso_modificarRecurso(recurso arrayRecurso[], tipo arrayTipo[], int limiteRecurso, int limiteTipo);
+
+int recurso_buscarEspacioLibre(recurso arrayRecurso[], int limiteRecurso);
+
+int recurso_buscarId(recurso arrayRecurso[], int limiteRecurso, int valorBuscado);
+
+int recurso_ordenarPorIdDescripcion(recurso arrayRecurso[], int limiteRecurso);
+
+int ordenarDescripcion(recurso arrayRecurso[], int limiteRecurso);
+
 
 #endif /* RECURSO_H_ */

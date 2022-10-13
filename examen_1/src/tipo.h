@@ -8,11 +8,16 @@
 #ifndef TIPO_H_
 #define TIPO_H_
 
+
 typedef struct {
 	int idTipo;
 	char descripcion[31];
-	int isEmpty;
 }tipo;
+void HardcodeoTipos(tipo arrayTipo[], int limiteTipo);
+int pedirTipo(tipo arrayTipo[] , int limiteTipo);
+int mostrarTipos(tipo arrayTipo[], int limiteTipo);
+
+
 
 
 #endif /* TIPO_H_ */

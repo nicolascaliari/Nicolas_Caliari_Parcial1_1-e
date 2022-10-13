@@ -1,55 +1,67 @@
-#include "tipo.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "recurso.h"
 #include "utn.h"
 #include "tipo.h"
+#define CANTIDAD_TIPOS 4
 
-int tipos(void) {
-	int i;
-	int opcion;
-	tipo tipos;
+/**
+ * \brief Hardcodea los campos de la estructura tipo
+ * \param arrayTipo Array de tipos
+ * \param limiteTipo Limite del array de tipos
+ * \return void
+ */
+void HardcodeoTipos(tipo arrayTipo[], int limiteTipo) {
+	if (arrayTipo != NULL && limiteTipo > 0) {
 
-	utn_getNumero(&opcion,
-			"Ingrese 1-LOCUCION \n 2-ANIMACION \n 3-ILUMINACION \n 4-DJ",
-			"error", 1, 4, 2);
-
-	switch (opcion) {
-
-	case 1:
-		tipos.idTipo = 1000;
-		strcpy(tipos.descripcion, "locucion");
-		printf("%s", tipos.descripcion);
-		break;
-	case 2:
-		tipos.idTipo = 1001;
-		strcpy(tipos.descripcion, "animacion");
-		printf("%s", tipos.descripcion);
-		break;
-	case 3:
-		tipos.idTipo = 1002;
-		strcpy(tipos.descripcion, "iluminacion");
-		printf("%s", tipos.descripcion);
-		break;
-	case 4:
-		tipos.idTipo = 1003;
-		strcpy(tipos.descripcion, "DJ");
-		printf("%s", tipos.descripcion);
-		break;
-
+		arrayTipo[0].idTipo = 1000;
+		strncpy(arrayTipo[0].descripcion, "LOCUCION", 30);
+		arrayTipo[1].idTipo = 1001;
+		strncpy(arrayTipo[1].descripcion, "ANIMACION", 30);
+		arrayTipo[2].idTipo = 1002;
+		strncpy(arrayTipo[2].descripcion, "ILUMINACION", 30);
+		arrayTipo[3].idTipo = 1003;
+		strncpy(arrayTipo[3].descripcion, "DJ", 30);
 	}
-	return tipos.idTipo;
 }
 
-//int listarTipos(tipo pElemento) {
-//
-//	int retorno = -1;
-////	if (pElemento.isEmpty == 0) {
-//		retorno = 0;
-//		printf("\n Descripcion:%s tipoId:%d",
-//				pElemento.descripcion, pElemento.idTipo);
-////	}
-//	return retorno;
-//
-//}
+/**
+ * \brief Pide un ID y lo retorna
+ * \param arrayTipo Array de tipos
+ * \param limiteTipo Limite del array de tipos
+ * \return Retorna el ID ingresado
+ *
+ */
+int pedirTipo(tipo arrayTipo[], int limiteTipo) {
+	int opcion;
+
+	if (arrayTipo != NULL && limiteTipo > 0) {
+
+		mostrarTipos(arrayTipo, limiteTipo);
+
+		utn_getNumero(&opcion, "\nElija el ID del tipo que quiera ingresar","error", 1000, 1003, 10000);
+
+	}
+	return opcion;
+}
+
+/**
+ * \brief Muestra todos los tipos hardcodeados
+ * \param arrayTipo Array de tipos
+ * \param limiteTipo Limite del array de tipos
+ * \return Retorna 0 (EXITO) y -1 (ERROR)
+ *
+ */
+int mostrarTipos(tipo arrayTipo[], int limiteTipo) {
+	int i;
+	int retorno = -1;
+
+	if (arrayTipo != NULL && limiteTipo > 0) {
+		retorno = 0;
+		printf(" id    descripcion");
+		for (i = 0; i < limiteTipo; i++) {
+			printf("\n%d   %s", arrayTipo[i].idTipo, arrayTipo[i].descripcion);
+		}
+	}
+	return retorno;
+}

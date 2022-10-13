@@ -17,19 +17,20 @@
 #include "informes.h"
 #include "tipo.h"
 
-#define CANTIDAD_RECURSOS 100
-#define CANTIDAD_EVENTOS 100
-#define CANTIDAD_TIPOS 100
+#define CANTIDAD_RECURSOS 20
+#define CANTIDAD_EVENTOS 20
+#define CANTIDAD_TIPOS 4
 
 int main(void) {
 	int opcion;
-	int auxiliarIndice;
 	recurso unRecurso[CANTIDAD_RECURSOS];
 	evento unEvento[CANTIDAD_EVENTOS];
-//	tipo unTipo[CANTIDAD_TIPOS];
-	int idEvento = 20000;
-	int banderaRecurso;
-	banderaRecurso = 1;
+	tipo unTipo[CANTIDAD_TIPOS];
+	int banderaImprimir = 0;
+	int banderaEvento = 0;
+	int contador = 0;
+
+	HardcodeoTipos(unTipo, CANTIDAD_TIPOS);
 
 	recurso_inicializarArray(unRecurso, CANTIDAD_RECURSOS);
 	evento_inicializarArray(unEvento, CANTIDAD_EVENTOS);
@@ -43,19 +44,24 @@ int main(void) {
 				"\n6.-ALTA EVENTO"
 				"\n7.LISTAR EVENTOS\n"
 				"\n8.INFORMES"
-				"\n9.Salir\n", "\nError opcion invalida", 1, 8, 2)) {
+				"\n9.Salir\n", "\nError opcion invalida", 1, 9, 2)) {
 			switch (opcion) {
 			case 1:
-				if (recurso_altaArray(unRecurso, CANTIDAD_RECURSOS) == 1) {
-					printf("Dado de alta exitosamente");
-					banderaRecurso = 0;
+				if (buscarEspacio(unRecurso, CANTIDAD_RECURSOS) == 1) {
+					if (recurso_altaArray(unRecurso, CANTIDAD_RECURSOS, unTipo, CANTIDAD_TIPOS) == 0) {
+						printf("Dado de alta exitosamente");
+						banderaImprimir = 1;
+						contador++;
+					} else {
+						printf("No se pudo dar de alta");
+					}
 				} else {
-					printf("No se pudo dar de alta");
+					printf("No hay mas espacio");
 				}
 
 				break;
 			case 2:
-				if (recurso_modificarArray(unRecurso, CANTIDAD_RECURSOS) == 1) {
+				if (banderaImprimir == 1 && recurso_modificarRecurso(unRecurso, unTipo, CANTIDAD_RECURSOS, CANTIDAD_TIPOS) == 0) {
 					printf("Modificacion exitosa");
 				} else {
 					printf("No se pudo realizar la modificacion");
@@ -64,62 +70,60 @@ int main(void) {
 
 			case 3:
 
-				if (recurso_bajaArray(unRecurso, CANTIDAD_RECURSOS,
-						auxiliarIndice) == 1) {
+				if (banderaImprimir == 1 && recurso_bajaArray(unRecurso, unTipo, CANTIDAD_RECURSOS, CANTIDAD_TIPOS) == 0) {
 					printf("Dado de baja exitosamente");
+					contador--;
+					if (contador == 0) {
+						banderaImprimir = 0;
+					}
 				} else {
 					printf("No se pudo dar de baja");
 				}
 				break;
 			case 4:
-				recurso_ordenarPorIdDescripcion(unRecurso, CANTIDAD_RECURSOS);
-				recurso_imprimirArray(unRecurso, CANTIDAD_RECURSOS);
+				if (banderaImprimir == 1) {
+					recurso_ordenarPorIdDescripcion(unRecurso, CANTIDAD_TIPOS);
+					recurso_imprimirArray(unRecurso, unTipo, CANTIDAD_RECURSOS,
+					CANTIDAD_TIPOS);
+				} else {
+					printf("Todavia no se cargo ningun recurso");
+				}
 
 				break;
 
 			case 5:
-
-				recurso_imprimirArray(unRecurso, CANTIDAD_RECURSOS);
-//				listarTipos(unTipo);
+				mostrarTipos(unTipo, CANTIDAD_TIPOS);
 				break;
 
 			case 6:
-				if (banderaRecurso == 0) {
-
-					auxiliarIndice = evento_getEmptyIndex(unEvento,
-					CANTIDAD_EVENTOS);
-					if (auxiliarIndice >= 0) {
-						if (evento_altaArray(unEvento, CANTIDAD_EVENTOS,
-								auxiliarIndice, &idEvento) == 0) {
-							printf("\nCarga realizada con exito\n");
-						}
-					} else {
-						printf("\nNO HAY MAS LUGAR");
-					}
+				if (banderaImprimir == 1 && evento_altaArray(unEvento, unRecurso, unTipo, CANTIDAD_EVENTOS, CANTIDAD_RECURSOS, CANTIDAD_TIPOS) == 0) {
+					printf("\nDado de alta exitosamente");
+					banderaEvento = 1;
 				} else {
-					printf("Debes ingresar un recurso al menos");
+					printf("\nNo se pudo dar de alta");
 				}
 				break;
 
 			case 7:
-				evento_imprimirArray(unEvento, CANTIDAD_EVENTOS);
+				if (banderaEvento == 1) {
+					evento_imprimirArray(unEvento, CANTIDAD_EVENTOS);
+				} else {
+					printf("No cargaste ningun evento");
+				}
 
 				break;
 			case 8:
-				menu();
+				if (banderaImprimir == 1 && banderaEvento == 1){
+					menu(unRecurso, unTipo, unEvento, CANTIDAD_RECURSOS,CANTIDAD_TIPOS, CANTIDAD_EVENTOS);
+				} else{
+					printf("Debes dar un alta de recurso y un alta de evento");
+				}
+
 				break;
 
 			}
 		}
-	} while (opcion != 8);
+	} while (opcion != 9);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
-
-//la PK es la clave primaria, que debe ser unica en cada estructura,
-//no se repite dentro de esa estructura
-//por ejemplo idAnimal
-//
-//
-//la Fk es una clave primaria de OTRA estructura,
-//entonces si se puede repetir no hay problema (siempre y cuando sea FK, osea no es la primaria)

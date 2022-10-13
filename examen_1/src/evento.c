@@ -1,166 +1,147 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "recurso.h"
 #include "utn.h"
 #include "evento.h"
+#include "recurso.h"
+#include "tipo.h"
 
+static int idEvento(void);
+static int idEvento(void) {
+	static int Gen_idIncremental = 20000;
+	return Gen_idIncremental++;
+}
 
 /**
- * \brief Imprime los datos de un cliente
- * \param pElemento Puntero al producto que se busca imprimir
- * \return Retorna 0 (EXITO) y -1 (ERROR)
- *
+ * \brief Inicia el campo isEmpty del array de tipo evento en 0
+ * \param arrayEvento Array de tipo evento
+ * \param limiteEvento Limite del array
+ * \return void
  */
-int evento_imprimir(evento pElemento) {
+void evento_inicializarArray(evento arrayEvento[], int limiteEvento) {
+	int i;
+	if (arrayEvento != NULL && limiteEvento > 0) {
+		for (i = 0; i < limiteEvento; i++) {
+			arrayEvento[i].isEmpty = 0;
+		}
+	}
+}
+
+/**
+ * \brief Imprime los datos de un evento
+ * \param unRecurso variable de tipo evento
+ * \return Retorna 0 (EXITO) y -1 (ERROR)
+ */
+int evento_imprimir(evento unEVento) {
 	int retorno = -1;
-	if (pElemento.isEmpty == 0) {
+	if (unEVento.isEmpty == 1) {
 		retorno = 0;
-		printf("\n ID:%d \n Localidad:%s \n Cantidad:%d \n  fecha:%d,%d,%d",
-				pElemento.idEvento, pElemento.localidad, pElemento.cantidad,
-				pElemento.unaFecha.dia, pElemento.unaFecha.mes,
-				pElemento.unaFecha.anio);
+		printf(	"\n ID evento:%d  Localidad:%s  Cantidad:%d  fecha:%d,%d,%d  idRecurso: %d\n",
+				unEVento.idEvento, unEVento.localidad, unEVento.cantidad,
+				unEVento.unaFecha.dia, unEVento.unaFecha.mes,
+				unEVento.unaFecha.anio, unEVento.recursoId);
 	}
 	return retorno;
 }
 
 /**
- * \brief Imprime el array de clientes
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
+ * \brief Imprime el array de recurso
+ * \param arrayEvento Array de tipo evento
+ * \param limiteRecurso Limite del array de evento
  * \return Retorna 0 (EXITO) y -1 (ERROR)
- *
  */
-int evento_imprimirArray(evento array[], int limite) {
+int evento_imprimirArray(evento arrayEvento[], int limiteEvento) {
 	int respuesta = -1;
 	int i;
-	if (array != NULL && limite > 0) {
+	if (arrayEvento != NULL && limiteEvento > 0) {
 		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			evento_imprimir(array[i]);
+		for (i = 0; i < limiteEvento; i++) {
+			evento_imprimir(arrayEvento[i]);
 		}
 	}
 	return respuesta;
 }
 
 /**
- * \brief Inicializa el array
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
+ * \brief Carga los datos y da de alta un evento en una posicion del array
+ * \param arrayEvento Array de tipo evento
+ * \param arrayRecurso Array de tipo recurso
+ * \param arrayTipo Array de tipo tipo
+ * \param limiteEVento Limite del array de evento
+ * \param limiteRecurso Limite del array de recurso
+ * \param limiteTipo Limite del array de tipo
  * \return Retorna 0 (EXITO) y -1 (ERROR)
  *
  */
-int evento_inicializarArray(evento array[], int limite) {
+
+int evento_altaArray(evento arrayEvento[], recurso arrayRecurso[], tipo arrayTipo[], int limiteEvento, int limiteRecurso, int limiteTipo) {
+	int retorno = -1;
+	evento auxiliar;
+	int opcion;
+	int indice;
+
+	if(arrayEvento != NULL && arrayRecurso != NULL && arrayTipo != NULL && limiteEvento > 0 && limiteRecurso > 0 && limiteTipo > 0){
+
+	indice = evento_buscarEspacioLibre(arrayEvento, limiteEvento);
+
+	if (indice != -1) {
+
+		recurso_imprimirArray(arrayRecurso, arrayTipo, limiteRecurso,limiteTipo);
+		if (utn_getNumero(&opcion,
+				"\nElija el ID del recurso que quiera ingresar 1-20\n", "error", 1,
+				20, 10000) == 0){
+
+			if (buscarIdRecurso(arrayRecurso, limiteRecurso, opcion) == 1) {
+				auxiliar.recursoId = opcion;
+
+				if (utn_getDescripcion(auxiliar.localidad, LOCALIDAD,
+						"\nIngrese la localidad?\n", "\nERROR\n", 2) == 0
+						&& utn_getNumero(&auxiliar.cantidad,
+								"\nIngrese la cantidad de personas?\n",
+								"\nERROR\n", 1, 10000, 2) == 0
+						&& utn_getNumero(&auxiliar.unaFecha.dia,
+								"Ingrese el dia\n", "Error\n", 1, 31, 2) == 0
+						&& utn_getNumero(&auxiliar.unaFecha.mes,
+								"Ingrese el mes\n", "Error\n", 1, 12, 2) == 0
+						&& utn_getNumero(&auxiliar.unaFecha.anio,
+								"Ingrese el anio\n", "Error\n", 100, 300000, 2)== 0) {
+
+					auxiliar.idEvento = idEvento();
+
+					auxiliar.isEmpty = 1;
+
+					arrayEvento[indice] = auxiliar;
+
+					retorno = 0;
+
+				}
+			} else {
+				printf("\nEste ID no existe, debe ingresar uno que exista");
+				}
+			}
+
+		}
+	}
+	return retorno;
+}
+
+
+/** \brief Busca un ID que sea igual al valorBuscado y devuelve la posicion en que se encuentra
+ * \param arrayRecurso Array de tipo recurso
+ * \param limiteRecurso Limite del array de recurso
+ * \param valorBuscado variable de tipo INT
+ * \return Retorna la posicion donde encontro la coincidencia, si no encuentra retorna -1
+ *
+ */
+
+int buscarIdRecurso(recurso arrayRecurso[], int limiteRecurso, int valorBuscado) {
 	int respuesta = -1;
 	int i;
-	if (array != NULL && limite > 0) {
+	if (arrayRecurso != NULL && limiteRecurso > 0 && valorBuscado > 0) {
 		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			array[i].isEmpty = 1;
-		}
-	}
-	return respuesta;
-}
-
-/**
- * \brief Da de alta una pantalla en una posicion del array
- * \param array Array de pantallas a ser actualizado
- * \param limite Limite del array de pantallas
- * \param indice Posicion a ser actualizada
- * \param id Identificador a ser asignado a la pantalla
- * \return Retorna 0 (EXITO) y -1 (ERROR)
- *
- */
-int evento_altaArray(evento array[], int limite, int indice, int *id) {
-	int respuesta = -1;
-	evento bufferEvento;
-
-	if (array != NULL
-			&& limite > 0&& indice < limite && indice >= 0 && id != NULL) {
-		if (utn_getDescripcion(bufferEvento.localidad, LOCALIDAD,
-				"\nIngrese la localidad?\n", "\nERROR\n", 2) == 0
-				&& utn_getNumero(&bufferEvento.cantidad,
-						"\nIngrese la cantidad de personas?\n", "\nERROR\n", 1,
-						10000, 2) == 0
-				&& utn_getNumero(&bufferEvento.unaFecha.dia, "Ingrese el dia\n",
-						"Error\n", 1, 31, 2) == 0
-				&& utn_getNumero(&bufferEvento.unaFecha.mes, "Ingrese el mes\n",
-						"Error\n", 1, 12, 2) == 0
-				&& utn_getNumero(&bufferEvento.unaFecha.anio, "Ingrese el anio\n",
-						"Error\n", 100, 300000, 2) == 0) {
-			respuesta = 0;
-			bufferEvento.idEvento = *id;
-			bufferEvento.isEmpty = 0;
-			array[indice] = bufferEvento;
-			(*id)++;
-		}
-
-	}
-	return respuesta;
-}
-
-/**
- * \brief Actualiza los datos de un cliente en una posicion del array
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
- * \param indice Posicion a ser actualizada
- * \return Retorna 0 (EXITO) y -1 (ERROR)
- *
- */
-int evento_modificarArray(evento array[], int limite, int indice) {
-	int respuesta = -1;
-	evento bufferProduct;
-
-	if (array != NULL && limite > 0 && indice < limite && indice >= 0
-			&& array[indice].isEmpty == 0) {
-		if (utn_getDescripcion(bufferProduct.localidad, LOCALIDAD,
-				"\nINgrese la localidad?\n", "\nERROR\n", 2) == 0
-				&& utn_getNumero(&bufferProduct.cantidad,
-						"\nINgrese la cantidad?\n", "\nERROR\n", 0, 10000, 2)
-						== 0) {
-			respuesta = 0;
-			bufferProduct.idEvento = array[indice].idEvento;
-//			bufferProduct.tipoId = tipos();
-			bufferProduct.isEmpty = 0;
-			array[indice] = bufferProduct;
-		}
-	}
-	return respuesta;
-}
-
-/**
- * \brief Actualiza una posicion del array
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
- * \param indice Posicion a ser actualizada
- * \return Retorna 0 (EXITO) y -1 (ERROR)
- *
- */
-int evento_bajaArray(evento array[], int limite, int indice) {
-	int respuesta = -1;
-	if (array != NULL && limite > 0 && indice < limite && indice >= 0
-			&& array[indice].isEmpty == 0) {
-		array[indice].isEmpty = 1;
-		respuesta = 0;
-	}
-	return respuesta;
-}
-
-/** \brief Busca un ID en un array y devuelve la posicion en que se encuentra
- * \param array cliente Array de cliente
- * \param limite int Tamaño del array
- * \param posicion int* Puntero a la posicion del array donde se encuentra el valor buscado
- * \return int Return (-1) si no encuentra el valor buscado o Error [Invalid length or NULL pointer] - (0) si encuentra el valor buscado
- *
- */
-int evento_buscarId(evento array[], int limite, int valorBuscado) {
-	int respuesta = -1;
-	int i;
-	if (array != NULL && limite > 0 && valorBuscado >= 0) {
-		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			if (array[i].idEvento == valorBuscado) {
-				respuesta = i;
+		for (i = 0; i < limiteRecurso - 1; i++) {
+			if (arrayRecurso[i].idRecurso == valorBuscado) {
+				respuesta = 1;
 				break;
 			}
 		}
@@ -170,18 +151,18 @@ int evento_buscarId(evento array[], int limite, int valorBuscado) {
 
 /**
  * \brief Buscar primer posicion vacia
- * \param array Array de clientes
- * \param limite Limite del array de clientes
+ * \param arrayEvento Array de evento
+ * \param limiteEvento Limite del array de evento
  * \return Retorna el incice de la posicion vacia y -1 (ERROR)
  *
  */
-int evento_getEmptyIndex(evento array[], int limite) {
+int evento_buscarEspacioLibre(evento arrayEvento[], int limiteEvento) {
 	int respuesta = -1;
 	int i;
-	if (array != NULL && limite > 0) {
+	if (arrayEvento != NULL && limiteEvento > 0) {
 		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			if (array[i].isEmpty == 1) {
+		for (i = 0; i < limiteEvento; i++) {
+			if (arrayEvento[i].isEmpty == 0) {
 				respuesta = i;
 				break;
 			}

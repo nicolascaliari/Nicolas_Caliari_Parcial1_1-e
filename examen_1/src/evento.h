@@ -8,6 +8,7 @@
 #ifndef EVENTO_H_
 #define EVENTO_H_
 #define LOCALIDAD 30
+#include "recurso.h"
 
 typedef struct {
 	int dia;
@@ -26,15 +27,12 @@ typedef struct {
 	int isEmpty;
 }evento;
 
-int evento_imprimir(evento pElemento);
-int evento_inicializarArray(evento array[],int limite);
-int evento_altaArray(evento array[],int limite, int indice, int* id);
-int evento_getEmptyIndex(evento array[],int limite);
-int evento_imprimirArray(evento array[],int limite);
-int evento_buscarId(evento array[], int limite, int valorBuscado);
-int evento_modificarArray(evento array[],int limite, int indice);
-int evento_bajaArray(evento array[],int limite, int indice);
 
-
+void evento_inicializarArray(evento arrayEvento[],int limiteEvento);
+int evento_imprimir(evento unEvento);
+int evento_imprimirArray(evento arrayEvento[], int limiteEvento);
+int evento_altaArray(evento arrayEvento[],recurso arrayRecurso[] ,tipo arrayTipo[],int limiteEvento, int limiteRecurso, int limiteTipo);
+int buscarIdRecurso(recurso arrayRecurso[], int limiteRecurso, int valorBuscado);
+int evento_buscarEspacioLibre(evento arrayEvento[], int limiteEvento);
 
 #endif /* EVENTO_H_ */

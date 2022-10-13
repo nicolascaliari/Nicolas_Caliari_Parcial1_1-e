@@ -5,288 +5,269 @@
 #include "utn.h"
 #include "tipo.h"
 
-static int eGen_ObtenerID(void) {
-	//ID AUTOINCREMENTAL - PRIVADO / GLOBAL
-	//INICIALIZADO UNA UNICA VEZ AL COMIENZO DEL PROGRAMA CON ALCANCE UNICAMENTE EN FUNCION eGen_ObtenerID();
-	static int Gen_idIncremental = 0;
+/**
+ *\brief: Otorga un ID autoincremental.
+ *\param: ---
+ *\return: retorna el id autoincrementado.
+ **/
+static int idRecurso(void);
+static int idRecurso(void) {
+	static int Gen_idIncremental = 1;
 	return Gen_idIncremental++;
 }
 
 /**
- * \brief Imprime los datos de un cliente
- * \param pElemento Puntero al producto que se busca imprimir
+ * \brief Inicia el campo isEmpty del array de tipo recurso en 0
+ * \param arrayRecurso Array de tipo recurso
+ * \param limiteRecurso Limite del array
+ * \return void
+ *
+ */
+void recurso_inicializarArray(recurso arrayRecurso[], int limiteRecurso) {
+	int i;
+	if (arrayRecurso != NULL && limiteRecurso > 0) {
+		for (i = 0; i < limiteRecurso; i++) {
+			arrayRecurso[i].isEmpty = 0;
+		}
+	}
+}
+
+/**
+ * \brief Imprime los datos de un recurso
+ * \param unRecurso variable de tipo recurso
+ * \param arrayTipo de tipo tipo
+ * \param limiteTipo Limite de tipo
  * \return Retorna 0 (EXITO) y -1 (ERROR)
  *
  */
-int recurso_imprimir(recurso pElemento) {
-	int retorno = 0;
-//	int cantidad = 0;
-	if (pElemento.isEmpty == 0) {
+int recurso_imprimir(recurso unRecurso, tipo arrayTipo[], int limiteTipo) {
+	int retorno = -1;
+	int i;
+	if (unRecurso.isEmpty == 1 && arrayTipo != NULL && limiteTipo > 0) {
+		for (i = 0; i < limiteTipo; i++) {
+			if (unRecurso.tipoId == arrayTipo[i].idTipo) {
+				printf(
+						"\n ID:%d   Descripcion:%s   Precio:%.2f   tipoId:%s  Id de tipo: %d\n",
+						unRecurso.idRecurso, unRecurso.descripcion,
+						unRecurso.precioPorHora, arrayTipo[i].descripcion,
+						arrayTipo[i].idTipo);
+			}
+		}
 		retorno = 0;
-		printf("\n ID:%d \n Descripcion:%s \n Precio:%.2f \n tipoId:%d\n",
-				pElemento.idRecurso, pElemento.descripcion,
-				pElemento.precioPorHora, pElemento.tipoId);
-
-//				cantidad++;
 	}
-//
-//	if(cantidad  == 0){
-//		retorno = 1;
-//		printf("NO hay nada para mostrar");
-//	}
 	return retorno;
 }
 
 /**
- * \brief Imprime el array de clientes
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
+ * \brief Imprime el array de recurso
+ * \param arrayRecurso Array de tipo recurso
+ * \param arrayTipo Array de tipo tipo
+ * \param limiteRecurso Limite del array de recurso
+ * \param limiteTipo Limite del array de tipo
  * \return Retorna 0 (EXITO) y -1 (ERROR)
  *
  */
-int recurso_imprimirArray(recurso array[], int limite) {
+int recurso_imprimirArray(recurso arrayRecurso[], tipo arrayTipo[], int limiteRecurso, int limiteTipo) {
 	int respuesta = -1;
 	int i;
-	if (array != NULL && limite > 0) {
-		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			recurso_imprimir(array[i]);
+	if (arrayRecurso != NULL && arrayTipo != NULL && limiteRecurso > 0
+			&& limiteTipo > 0) {
+		for (i = 0; i < limiteRecurso; i++) {
+			recurso_imprimir(arrayRecurso[i], arrayTipo, limiteTipo);
 		}
+		respuesta = 0;
 	}
+
 	return respuesta;
 }
 
 /**
- * \brief Inicializa el array
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
+ * \brief Carga los datos y da de alta un recurso en una posicion del array
+ * \param arrayRecurso Array de tipo recurso
+ * \param arrayTipo Array de tipo tipo
+ * \param limiteRecurso Limite del array de recurso
+ * \param limiteTipo Limite del array de tipo
  * \return Retorna 0 (EXITO) y -1 (ERROR)
  *
  */
-int recurso_inicializarArray(recurso array[], int limite) {
-	int respuesta = -1;
-	int i;
-	if (array != NULL && limite > 0) {
-		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			array[i].isEmpty = 1;
-		}
-	}
-	return respuesta;
-}
-
-/**
- * \brief Da de alta una pantalla en una posicion del array
- * \param array Array de pantallas a ser actualizado
- * \param limite Limite del array de pantallas
- * \param indice Posicion a ser actualizada
- * \param id Identificador a ser asignado a la pantalla
- * \return Retorna 0 (EXITO) y -1 (ERROR)
- *
- */
-int recurso_altaArray(recurso array[], int limite) {
-	int rtn = 0;
-	recurso auxGen;
-
-	//BUSCO ESPACIO EN ARRAY
-	int index = recurso_getEmptyIndex(array, limite);
-
-	//SI INDEX == -1 ARRAY LLENO
-	//SI INDEX != -1 TENGO EN INDEX POSICION DE ARRAY LIBRE
-	if (index != -1) {
-		//PIDO DATOS - CARGO Gen AUXILIAR
-		auxGen = eGen_CargarDatos();
-		//SETEO ID UNICO - VARIABLE ESTATICA AUTOINCREMENTAL
-		auxGen.idRecurso = eGen_ObtenerID();
-		//CAMBIO SU ESTADO A "OCUPADO"
-		auxGen.isEmpty = 0;
-		//SETEO EL ARRAY CON AUXILIAR EN INDEX LIBRE OBTENIDO PREVIAMENTE
-		array[index] = auxGen;
-
-		//RETORNO 1 PARA SABER QUE FUE DADO DE ALTA SATISFACTORIAMENTE
-		rtn = 1;
-	}
-
-	return rtn;
-}
-
-recurso eGen_CargarDatos(void) {
+int recurso_altaArray(recurso arrayRecurso[], int limiteRecurso, tipo arrayTipo[], int limiteTipo) {
+	int retorno = -1;
 	recurso auxiliar;
-	utn_getDescripcion(auxiliar.descripcion, DESCRIPCION, "\nDescripcion?\n",
-			"\nERROR\n", 2);
-	utn_getNumeroFlotante(&auxiliar.precioPorHora, "\nPrecio?\n", "\nERROR\n",
-			0, 10000, 2);
-	auxiliar.tipoId = tipos();
+	int indice;
 
-	return auxiliar;
+	if(arrayRecurso != NULL && arrayTipo && limiteRecurso > 0 && limiteTipo > 0){
+
+
+
+	indice = recurso_buscarEspacioLibre(arrayRecurso, limiteRecurso);
+
+	if (indice != -1) {
+
+		if (utn_getDescripcion(auxiliar.descripcion, DESCRIPCION,"\nDescripcion?\n", "\nERROR\n", 100000) == 0
+			&& utn_getNumeroFlotante(&auxiliar.precioPorHora, "\nPrecio?\n","\nERROR\n", 0, 10000, 100000) == 0)
+		{
+			auxiliar.tipoId = pedirTipo(arrayTipo, limiteTipo);
+		}
+
+		auxiliar.idRecurso = idRecurso();
+
+		auxiliar.isEmpty = 1;
+
+		arrayRecurso[indice] = auxiliar;
+
+		retorno = 0;
+		}
+	}
+
+	return retorno;
 }
 
 /**
- * \brief Actualiza los datos de un cliente en una posicion del array
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
- * \param indice Posicion a ser actualizada
+ * \brief Modifico los datos de una variable de tipo recurso seleccionado
+ * \param arrayRecurso Array de tipo recurso
+ * \param arrayTipo Array de tipo tipo
+ * \param limiteRecurso Limite del array de recurso
+ * \param limiteTipo Limite del array de tipo
  * \return Retorna 0 (EXITO) y -1 (ERROR)
- *
  */
 
-recurso eGen_ModificarUno(recurso Gen) {
-	recurso auxiliar = Gen;
+int recurso_modificarRecurso(recurso arrayRecurso[], tipo arrayTipo[], int limiteRecurso, int limiteTipo) {
+
+	int retorno = -1;
+	int id;
+	int indice;
 	int opcion;
 
-	if (!utn_getNumero(&opcion, "\nMenu para modificar recurso"
-			"\n\n1.Ingrese 1 para modificar precio por hora"
-			"\n2.Ingrese 2 para modificar la descripcion",
-			"\nError opcion invalida", 1, 2, 2)) {
-		switch (opcion) {
-		case 1:
-			utn_getNumeroFlotante(&auxiliar.precioPorHora, "\nPrecio?\n",
-					"\nERROR\n", 0, 10000, 2);
-			break;
-		case 2:
-			utn_getDescripcion(auxiliar.descripcion, DESCRIPCION,
-					"\nDescripcion?\n", "\nERROR\n", 2);
-			break;
-		}
+	if (arrayRecurso != NULL && arrayTipo != NULL && limiteTipo > 0 && limiteRecurso > 0) {
 
-	}
-	return auxiliar;
-}
+		recurso_imprimirArray(arrayRecurso, arrayTipo, limiteRecurso,limiteTipo);
 
-int recurso_modificarArray(recurso array[], int limite) {
-	int rtn = 0;
-	int idGen;
-	int index;
-	int flag = 0;
-	recurso auxiliar;
+		if (utn_getNumero(&id, "Ingrese el ID que desea modificar",
+				"Error al ingresar id", 0, 20, 3) == 0) {
 
-	//LISTO TODOS LOS Gen
-	if (recurso_imprimirArray(array, limite) == 0) {
-		//BANDERA EN 1 SI HAY Gen DADOS DE ALTA PARA LISTAR
-		flag = 1;
-	}
+			while (recurso_buscarId(arrayRecurso, limiteRecurso, id) == -1) {
+				puts("NO EXISTE ID.");
+				utn_getNumero(&id, "Ingrese el ID que desea modificar","Error al ingresar id", 0, 20, 3);
+			}
 
-	//SI HAY Gen PARA MODIFICAR
-	if (flag == 1) {
-		//PIDO ID A MODIFICAR
-		/**USAR FUNCION GET_INT DE LIBRERIA DE INPUTS*/
-		utn_getNumero(&idGen, "Ingrese el ID que desea modificar\n",
-				"Error al ingresar id", 0, 10, 3);
-//			printf("INGRESE ID A DAR DE BAJA: ");
-//			scanf("%d", &idGen);
+			indice = recurso_buscarId(arrayRecurso, limiteRecurso, id);
 
-//BUSCO INDEX POR ID EN ARRAY
-		while (recurso_buscarId(array, limite, idGen) == -1) {
-			puts("NO EXISTE ID.");
-			utn_getNumero(&idGen, "Ingrese el ID que desea modificar\n",
-					"Error al ingresar id", 0, 10, 3);
-			/**USAR FUNCION GET_INT DE LIBRERIA DE INPUTS*/
+			if (indice != -1) {
+
+				if (utn_getNumero(&opcion, "\nMenu para modificar recurso"
+						"\n\n1.Ingrese 1 para modificar precio por hora"
+						"\n2.Ingrese 2 para modificar la descripcion",
+						"\nError opcion invalida", 1, 2, 10000) == 0) {
+					switch (opcion) {
+					case 1:
+						utn_getNumeroFlotante(&arrayRecurso[indice].precioPorHora,"\nPrecio?\n", "\nERROR\n", 1, 10000, 100000);
+						retorno = 0;
+						break;
+					case 2:
+						utn_getDescripcion(arrayRecurso[indice].descripcion,DESCRIPCION, "\nDescripcion?\n", "\nERROR\n", 1000000);
+						retorno = 0;
+						break;
+					}
+
+				}
+
+			}
 
 		}
-
-		//OBTENGO INDEX DEL ARRAY DE Gen A MODIFICAR
-		index = recurso_buscarId(array, limite, idGen);
-
-		//LLAMO A FUNCION QUE MODIFICA Gen
-		auxiliar = eGen_ModificarUno(array[index]);
-
-		/**PREGUNTAR SI DESEA CONTINUAR*/
-		//MODIFICACION ACEPTADA
-		array[index] = auxiliar;
-
-		//RETORNO 1 SI SE MODIFICO CORRECTAMENTE
-		rtn = 1;
 	}
-
-	return rtn;
+	return retorno;
 }
 
 /**
- * \brief Actualiza una posicion del array
- * \param array Array de clientes a ser actualizado
- * \param limite Limite del array de clientes
- * \param indice Posicion a ser actualizada
+ * \brief Da de baja un recurso ingresando su ID
+ * \param arrayRecurso Array de tipo recurso
+ * \param arrayTipo Array de tipo tipo
+ * \param limiteRecurso Limite del array de recurso
+ * \param limiteTipo Limite del array de tipo
  * \return Retorna 0 (EXITO) y -1 (ERROR)
  *
  */
-int recurso_bajaArray(recurso array[], int limite, int indice) {
-	int rtn = 0;
-	int idGen;
-	int index;
-	int flag = 0;
+int recurso_bajaArray(recurso arrayRecurso[], tipo arrayTipo[], int limiteRecurso, int limiteTipo) {
+	int retorno = -1;
+	int id;
+	int indice;
 
-	//LISTO TODOS LOS Gen
-	if (recurso_imprimirArray(array, limite) == 0) {
-		//BANDERA EN 1 SI HAY Gen DADOS DE ALTA PARA LISTAR
-		flag = 1;
-	}
+	if (arrayRecurso != NULL && arrayTipo != NULL && limiteRecurso > 0 && limiteTipo > 0) {
 
-	//SI HAY Gen PARA DAR DE BAJA
-	if (flag == 1) {
-		//PIDO ID A DAR DE BAJA
-		/**USAR FUNCION GET_INT DE LIBRERIA DE INPUTS*/
-		utn_getNumero(&idGen, "Ingrese el ID que desea dar de baja\n",
-				"Error al ingresar id", 0, 10, 3);
+		recurso_imprimirArray(arrayRecurso, arrayTipo, limiteRecurso, limiteTipo);
 
-		//BUSCO INDEX POR ID EN ARRAY
-		while (recurso_buscarId(array, limite, idGen) == -1) {
-			puts("NO EXISTE ID.");
+		if (utn_getNumero(&id, "Ingrese el ID que desea modificar","Error al ingresar id", 1, 20, 10000) == 0) {
 
-			/**USAR FUNCION GET_INT DE LIBRERIA DE INPUTS*/
-			utn_getNumero(&idGen, "Ingrese el ID que desea dar de baja\n",
-					"Error al ingresar id", 0, 10, 3);
+			while (recurso_buscarId(arrayRecurso, limiteRecurso, id) == -1) {
+				puts("NO EXISTE ID.");
+				utn_getNumero(&id, "Ingrese el ID que desea modificar", "Error al ingresar id", 1, 20, 10000);
+			}
+
+			indice = recurso_buscarId(arrayRecurso, limiteRecurso, id);
+
+			arrayRecurso[indice].isEmpty = 0;
+
+			retorno = 0;
 		}
-
-		//OBTENGO INDEX DEL ARRAY DE Gen A DAR DE BAJA
-		index = recurso_buscarId(array, limite, idGen);
-
-		/**PREGUNTAR SI DESEA CONTINUAR*/
-		//BAJA ACEPTADA - CAMBIO ESTADO A "BAJA"
-		array[index].isEmpty = 1;
-
-		//RETORNO 1 SI SE DIO DE BAJA CORRECTAMENTE
-		rtn = 1;
 	}
 
-	return rtn;
+	return retorno;
 }
 
-/** \brief Busca un ID en un array y devuelve la posicion en que se encuentra
- * \param array cliente Array de cliente
- * \param limite int Tamaño del array
- * \param posicion int* Puntero a la posicion del array donde se encuentra el valor buscado
- * \return int Return (-1) si no encuentra el valor buscado o Error [Invalid length or NULL pointer] - (0) si encuentra el valor buscado
+/** \brief Busca un ID que sea igual al valorBuscado y devuelve la posicion en que se encuentra
+ * \param arrayRecurso Array de tipo recurso
+ * \param limiteRecurso Limite del array de recurso
+ * \param valorBuscado variable de tipo INT
+ * \return Retorna la posicion donde encontro la coincidencia, si no encuentra retorna -1
  *
  */
-int recurso_buscarId(recurso array[], int limite, int valorBuscado) {
+int recurso_buscarId(recurso arrayRecurso[], int limiteRecurso, int valorBuscado) {
 	int respuesta = -1;
 	int i;
-	if (array != NULL && limite > 0 && valorBuscado >= 0) {
-		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			if (array[i].idRecurso == valorBuscado) {
+	if (arrayRecurso != NULL && limiteRecurso > 0 && valorBuscado > 0) {
+		for (i = 0; i < limiteRecurso; i++) {
+			if (arrayRecurso[i].idRecurso == valorBuscado) {
 				respuesta = i;
 				break;
 			}
 		}
 	}
 	return respuesta;
+}
+
+
+/**
+*\brief: Verifica que haya espacio para cargar un nuevo dato de tipo transporte.
+*\param: Array de tipo transporte, Longitud del array.
+*\return: Retorna 1 si encuentra espacio, Retorna 0 si no lo encuentra.
+**/
+int buscarEspacio(recurso arrayRecurso[], int limiteArray){
+	int retorno = 0;
+	if(arrayRecurso != NULL && limiteArray > 0){
+		for(int i = 0; i < limiteArray; i++){
+
+			if(arrayRecurso[i].isEmpty == 0){
+				retorno = 1;
+			}
+		}
+	}
+	return retorno;
 }
 
 /**
  * \brief Buscar primer posicion vacia
- * \param array Array de clientes
- * \param limite Limite del array de clientes
+ * \param arrayRecurso Array de recursos
+ * \param limiteRecurso Limite del array de recurso
  * \return Retorna el incice de la posicion vacia y -1 (ERROR)
  *
  */
-int recurso_getEmptyIndex(recurso array[], int limite) {
+int recurso_buscarEspacioLibre(recurso arrayRecurso[], int limiteRecurso) {
 	int respuesta = -1;
 	int i;
-	if (array != NULL && limite > 0) {
+	if (arrayRecurso != NULL && limiteRecurso > 0) {
 		respuesta = 0;
-		for (i = 0; i < limite; i++) {
-			if (array[i].isEmpty == 1) {
+		for (i = 0; i < limiteRecurso; i++) {
+			if (arrayRecurso[i].isEmpty == 0) {
 				respuesta = i;
 				break;
 			}
@@ -295,130 +276,37 @@ int recurso_getEmptyIndex(recurso array[], int limite) {
 	return respuesta;
 }
 
-int recurso_ordenarPorIdDescripcion(recurso array[], int limite) {
-	int respuesta = -1;
-	int flagSwap;
-	int i;
-	recurso buffer;
-	if (array != NULL && limite > 0) {
-		do {
-			flagSwap = 0;
-			for (i = 0; i < limite - 1; i++) {
-
-				if (array[i].tipoId > array[i + 1].tipoId) {
-					flagSwap = 1;
-					buffer = array[i];
-					array[i] = array[i + 1];
-					array[i + 1] = buffer;
-				} else {
-
-					if (strncmp(array[i].descripcion, array[i + 1].descripcion,
-					DESCRIPCION) > 0) {
-						flagSwap = 1;
-						buffer = array[i];
-						array[i] = array[i + 1];
-						array[i + 1] = buffer;
-					}
-				}
-
-			}
-			limite--;
-		} while (flagSwap);
-	}
-	return respuesta;
-}
-
-//int cli_ordenarPorIdDescripcion(recurso* array,int limite)
-//{
-//	int respuesta = -1;
-//	int flagSwap;
-//	int i;
-//	recurso buffer;
-//	int auxiliarCmp;
-//	if(array != NULL && limite > 0)
-//	{
-//		do
-//		{
-//			flagSwap = 0;
-//			for(i=0;i<limite-1;i++)
-//			{
-//				auxiliarCmp = strncmp(array[i].descripcion,array[i+1].descripcion,DESCRIPCION);
-//				if(	 auxiliarCmp > 0 ||
-//					(auxiliarCmp == 0 && array[i].tipoId < array[i+1].tipoId) )
-//				{
-//					flagSwap = 1;
-//					buffer = array[i];
-//					array[i] = array[i+1];
-//					array[i+1]=buffer;
-//				}
-//			}
-//			limite--;
-//		}while(flagSwap);
-//	}
-//	return respuesta;
-//}
-
 /**
- * \brief Ordenar el array de clientes por nombre
- * \param array Array de clientes
- * \param limite Limite del array de clientes
+ * \brief Ordena el array por ID y por descripcion
+ * \param arrayRecurso Array de recursos
+ * \param limiteRecurso Limite del array de recurso
  * \return Retorna el incice de la posicion vacia y -1 (ERROR)
  *
  */
-//int prod_ordenarPorDescripcion(recurso* array,int limite)
-//{
-//	int respuesta = -1;
-//	int flagSwap;
-//	int i;
-//	recurso buffer;
-//	if(array != NULL && limite > 0)
-//	{
-//		do
-//		{
-//			flagSwap = 0;
-//			for(i=0;i<limite-1;i++)
-//			{
-//				if(array[i].isEmpty || array[i+1].isEmpty)
-//				{
-//					continue;
-//				}
-//				if(strncmp(array[i].descripcion,array[i+1].descripcion,NOMBRE_LEN) > 0)
-//				{
-//					flagSwap = 1;
-//					buffer = array[i];
-//					array[i] = array[i+1];
-//					array[i+1]=buffer;
-//				}
-//			}
-//			limite--;
-//		}while(flagSwap);
-//	}
-//	return respuesta;
-//}
-//
-//
-//int OrdenaArrayInt(recurso* array,int limite)
-//{
-//   int flagSwap;
-//   int i;
-//   int contador = 0;
-//   int retorno = -1;
-//   recurso buffer;
-//
-//   if(array != NULL && limite > 0){
-//	   do{
-//		   flagSwap=0;
-//		   for(i=0; i<limite-1;i++){
-//			   if(array[i].precio < array[i+1].precio){
-//				   flagSwap = 1;
-//				   buffer = array[i];
-//				   array[i] = array[i+1];
-//				   array[i+1] = buffer;
-//			   }
-//			   contador++;
-//		   }
-//	   }while(flagSwap);
-//	   retorno = contador;
-//   }
-//   return retorno;
-//}
+
+int recurso_ordenarPorIdDescripcion(recurso arrayRecurso[], int limiteRecurso) {
+	int i;
+	int j;
+	recurso buffer;
+	if (arrayRecurso != NULL && limiteRecurso > 0) {
+
+		for (i = 0; i < limiteRecurso - 1; i++) {
+			for (j = i + 1; j < limiteRecurso; j++) {
+				if (arrayRecurso[i].tipoId > arrayRecurso[j].tipoId) {
+					buffer = arrayRecurso[i];
+					arrayRecurso[i] = arrayRecurso[j];
+					arrayRecurso[j] = buffer;
+				} else if (arrayRecurso[i].tipoId == arrayRecurso[j].tipoId) {
+					if (strncmp(arrayRecurso[i].descripcion, arrayRecurso[j].descripcion, limiteRecurso) > 0) {
+						buffer = arrayRecurso[i];
+						arrayRecurso[i] = arrayRecurso[j];
+						arrayRecurso[j] = buffer;
+					}
+				}
+			}
+
+		}
+
+	}
+	return 0;
+}
